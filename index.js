@@ -12,11 +12,9 @@ import { collection, getDoc, setDoc, doc } from "firebase/firestore";
 const app = express();
 const port = 8080;
 
-// Get __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve static files from the 'public' folder
 app.use(express.static('public'));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -26,13 +24,10 @@ app.use(cors({
 }));
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// Root route to handle GET requests to "/"
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/index.html'));
 });
 
-// Get cookie count for user
-// Get cookie count for user
 app.get('/cookies/:userId', async (req, res) => {
     try {
         const { userId } = req.params;
@@ -44,7 +39,7 @@ app.get('/cookies/:userId', async (req, res) => {
         }
 
         const data = userDoc.data();
-        res.json(data); // Send the current cookie count
+        res.json(data); 
     } catch (error) {
         console.error('Error fetching document:', error);
         res.status(500).send('Internal Server Error');
@@ -52,7 +47,6 @@ app.get('/cookies/:userId', async (req, res) => {
 });
 
 
-// Update cookie count for user
 app.post('/cookies', async (req, res) => {
     try {
         const { userId, cookies } = req.body;
@@ -62,7 +56,7 @@ app.post('/cookies', async (req, res) => {
         let newCookieCount = cookies;
         if (userDoc.exists()) {
             const currentCookies = userDoc.data().cookies || 0;
-            newCookieCount = currentCookies + cookies; // Increment cookie count
+            newCookieCount = currentCookies + cookies;
         }
 
         await setDoc(userRef, { cookies: newCookieCount }, { merge: true });
