@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Clicker</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin-top: 50px;
+            background-color: #f0f8ff;
+        }
+
+        img {
+            width: 150px;
+            cursor: pointer;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #cookie-count {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Click the Cookie!</h1>
+    <img id="cookie" src="cookie.png" alt="Cookie">
+    <p id="message"></p>
+    <p>Cookie count: <span id="cookie-count">0</span></p>
+
+    <script>
+        const cookie = document.getElementById('cookie');
+        const message = document.getElementById('message');
+        const cookieCountElement = document.getElementById('cookie-count');
+        const userId = 'user123';
+
+        let clickCount = 0;
+
+        async function updateCookieCount() {
+            try {
+                const response = await fetch(`/cookies/${userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    cookieCountElement.textContent = data.cookies || 0;
+                    clickCount = data.cookies || 0;
+                } else {
+                    message.textContent = 'Failed to fetch cookie count';
+                }
+            } catch (error) {
+                console.error('Error fetching cookie count:', error);
+                message.textContent = 'Error occurred!';
+            }
+        }
+
+        cookie.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/cookies', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        cookies: 1,
+                    }),
+                });
+
+                if (response.ok) {
+                    message.textContent = 'Cookie count updated!';
+                    await updateCookieCount();
+                    clickCount += 1;
+                    if (clickCount % 50 === 0) {
+                        alert(`You have clicked ${clickCount} times!`);
+                    }
+                } else {
+                    const errorText = await response.text();
+                    message.textContent = `Failed to update cookie count: ${errorText}`;
+                }
+            } catch (error) {
+                console.error('Error updating cookie count:', error);
+                message.textContent = 'Error occurred!';
+            }
+        });
+
+        updateCookieCount();
+    </script>
+</body>
+
+</html>
